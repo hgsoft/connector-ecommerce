@@ -2,9 +2,9 @@
 # © 2013-2015 Camptocamp
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
-from openerp import models, fields, api
+from odoo import models, fields, api
 
-from openerp.addons.connector.session import ConnectorSession
+#from odoo.addons.connector.session import ConnectorSession
 from .event import on_picking_out_done, on_tracking_number_added
 
 
@@ -21,9 +21,9 @@ class StockPicking(models.Model):
     def write(self, vals):
         res = super(StockPicking, self).write(vals)
         if vals.get('carrier_tracking_ref'):
-            session = ConnectorSession.from_env(self.env)
+            #session = ConnectorSession.from_env(self.env)
             for record_id in self.ids:
-                on_tracking_number_added.fire(session, self._name, record_id)
+                on_tracking_number_added.fire(self.env, self._name, record_id)
         return res
 
     @api.multi
@@ -32,7 +32,7 @@ class StockPicking(models.Model):
         # StockMove.action_done(). Allow to handle the partial pickings
         self_context = self.with_context(__no_on_event_out_done=True)
         result = super(StockPicking, self_context).do_transfer()
-        session = ConnectorSession.from_env(self.env)
+        #session = ConnectorSession.from_env(self.env)
         for picking in self:
             if picking.picking_type_id.code != 'outgoing':
                 continue
@@ -40,7 +40,7 @@ class StockPicking(models.Model):
                 method = 'partial'
             else:
                 method = 'complete'
-            on_picking_out_done.fire(session, 'stock.picking',
+            on_picking_out_done.fire(self.env, 'stock.picking',
                                      picking.id, method)
 
         return result
@@ -59,14 +59,14 @@ class StockMove(models.Model):
         result = super(StockMove, self).action_done()
 
         if fire_event:
-            session = ConnectorSession.from_env(self.env)
+            #session = ConnectorSession.from_env(self.env)
             for picking in pickings:
                 if states[picking.id] != 'done' and picking.state == 'done':
                     if picking.picking_type_id.code != 'outgoing':
                         continue
                     # partial pickings are handled in
                     # StockPicking.do_transfer()
-                    on_picking_out_done.fire(session, 'stock.picking',
+                    on_picking_out_done.fire(self.env, 'stock.picking',
                                              picking.id, 'complete')
 
         return result

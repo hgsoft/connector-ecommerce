@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
-
       <!-- activate the following options in the global settings:
            * Allow setting a discount on the sales order lines
            * Allow a different address for delivery and invoicing
@@ -12,10 +11,10 @@
         </record>
 
         <!-- the connector managers always need theses rights to import or
-            export products, sales orders, ... -->
-        <record id="connector.group_connector_manager" model="res.groups">
-            <field name="implied_ids" eval="[(4, ref('base.group_sale_manager'))]" />
-        </record>
-
+        export products, sales orders, ... -->
+        <record  model="res.groups" id="connector.group_connector_manager">
+            <field name="implied_ids" eval="[(4, ref('sales_team.group_sale_manager'))]" />
+        </record> 
     </data>
+
 </odoo>
